@@ -1,6 +1,7 @@
 import { MoonStar } from "lucide-react";
 import { useTheme } from "../contexts/ThemeContext";
 import { useAuth } from "../contexts/AuthContext";
+import { deleteAllForUser } from "../utils/supabase";
 
 export const Header = () => {
   const themeContext = useTheme();
@@ -11,6 +12,16 @@ export const Header = () => {
       <div />
       <div className="text-center font-extrabold">ACT Advisor</div>
       <div className="flex items-center justify-self-end">
+        <div className="flex mx-2 text-center">
+          {authContext.user && (
+            <button
+              className="btn btn-error"
+              onClick={() => deleteAllForUser(authContext.user?.id)}
+            >
+              DELETE ALL DATA
+            </button>
+          )}
+        </div>
         <div className="flex mx-2 text-center">
           {authContext.user && (
             <button className="btn btn-ghost" onClick={authContext.signOut}>

@@ -1,6 +1,6 @@
 import type { User } from "@supabase/supabase-js";
 import { useEffect, useState } from "react";
-import supabase from "../utils/supabase";
+import { supabase } from "../utils/supabase";
 import { AuthContext } from "./AuthContext";
 
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
@@ -14,7 +14,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     const { data: subscription } = supabase.auth.onAuthStateChange(
       (_event, session) => {
         setUser(session?.user ?? null);
-      }
+      },
     );
 
     return () => subscription.subscription.unsubscribe();
@@ -22,7 +22,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   const handleAuth = async (
     email: string,
-    password: string
+    password: string,
   ): Promise<{ message: string }> => {
     const { data: loginData, error: loginError } =
       await supabase.auth.signInWithPassword({

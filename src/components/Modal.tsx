@@ -5,7 +5,7 @@ import {
   type RatingsData,
 } from "../models/Ratings";
 import { RatingSlider } from "./RatingSlider";
-import supabase from "../utils/supabase";
+import { supabase } from "../utils/supabase";
 
 export const Modal = ({
   setModalOpen,
@@ -13,7 +13,7 @@ export const Modal = ({
   setModalOpen: React.Dispatch<React.SetStateAction<boolean>>;
 }) => {
   const [ratingsData, setRatingsData] = useState<RatingsData>(
-    getInitialRatingsData()
+    getInitialRatingsData(),
   );
 
   const handleAdd = async () => {

@@ -73,3 +73,7 @@ export type RatingRow = {
   defusion: number;
   acceptance: number;
 };
+
+export type RatingAverages = {
+  [K in (typeof ratingKeys)[number] as `avg_${K}`]: number;
+};

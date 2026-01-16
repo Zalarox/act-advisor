@@ -1,14 +1,48 @@
 import { createClient } from "@supabase/supabase-js";
-import { ratingKeys, ratingMetadata, type RatingRow } from "../models/Ratings";
-import { useQuery } from "@tanstack/react-query";
+import {
+  ratingKeys,
+  type RatingAverages,
+  type RatingRow,
+} from "../models/Ratings";
 
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
 const supabaseKey = import.meta.env.VITE_SUPABASE_PUBLISHABLE_DEFAULT_KEY;
 
-const supabase = createClient(supabaseUrl, supabaseKey);
+export const supabase = createClient(supabaseUrl, supabaseKey);
 
-export const fetchUserRatings = async (
-  userId: string
+export const fetchRatingsPage = async (userId: string, page: number) => {
+  const ITEMS_PER_PAGE = 5;
+  const from = (page - 1) * ITEMS_PER_PAGE;
+  const to = from + ITEMS_PER_PAGE - 1;
+
+  const { data, count, error } = await supabase
+    .from("rating")
+    .select("*", { count: "exact" })
+    .eq("user_id", userId)
+    .order("created_at", { ascending: false })
+    .range(from, to);
+
+  if (error) throw error;
+
+  return {
+    rows: data ?? [],
+    totalCount: count ?? 0,
+  };
+};
+
+export const fetchUserRatingCount = async (userId: string): Promise<number> => {
+  const { count, error } = await supabase
+    .from("rating")
+    .select("*", { count: "exact", head: true })
+    .eq("user_id", userId);
+
+  if (error) throw error;
+
+  return count ?? 0;
+};
+
+export const fetchAllUserRatings = async (
+  userId: string,
 ): Promise<RatingRow[]> => {
   const { data, error } = await supabase
     .from("rating")
@@ -23,39 +57,35 @@ export const fetchUserRatings = async (
   return data ?? [];
 };
 
-export const useUserRatings = (userId: string | undefined) => {
-  if (!userId) {
-    throw new Error("User ID is required to fetch ratings");
+export const fetchAverageRatings = async (userId: string) => {
+  const selectQuery = ratingKeys.map((key) => `avg_${key}:${key}.avg()`).join();
+
+  const { data, error } = await supabase
+    .from("rating")
+    .select(selectQuery)
+    .eq("user_id", userId)
+    .single()
+    .overrideTypes<RatingAverages>();
+
+  if (error) {
+    throw error;
   }
 
-  return useQuery({
-    queryKey: ["rating", userId],
-    queryFn: () => fetchUserRatings(userId),
-    staleTime: Infinity,
-    refetchOnWindowFocus: false,
-    refetchOnReconnect: false,
-    refetchOnMount: false,
-  });
+  return (
+    Object.entries(data).map(([k, v]) => ({
+      label: k.replace(/^avg_/, ""),
+      score: Number(v).toFixed(2),
+    })) ?? []
+  );
 };
 
-export const computeAverages = (rows: RatingRow[]) => {
-  if (rows.length === 0) return undefined;
+export const deleteAllForUser = async (userId: string | undefined) => {
+  const { error } = await supabase
+    .from("rating")
+    .delete()
+    .eq("user_id", userId);
 
-  const totals = ratingKeys.reduce((acc, key) => {
-    acc[key] = 0;
-    return acc;
-  }, {} as Record<(typeof ratingKeys)[number], number>);
-
-  for (const row of rows) {
-    for (const key of ratingKeys) {
-      totals[key] += row[key];
-    }
+  if (error) {
+    throw error;
   }
-
-  return ratingKeys.map((key) => ({
-    label: ratingMetadata.find((x) => x.id === key)?.label || "",
-    score: Number((totals[key] / rows.length).toFixed(2)),
-  }));
 };
-
-export default supabase;
