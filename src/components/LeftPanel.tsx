@@ -74,7 +74,15 @@ export const LeftPanel = () => {
             {pageData?.rows.map((row, i) => (
               <tr key={row.id}>
                 <td>{(page - 1) * 5 + i + 1}</td>
-                <td>{new Date(row.created_at).toLocaleDateString()}</td>
+                <td>
+                  {new Date(row.created_at).toLocaleString(undefined, {
+                    month: "short",
+                    day: "numeric",
+                    hour: "2-digit",
+                    minute: "2-digit",
+                    hour12: false,
+                  })}
+                </td>
                 {ratingKeys.map((k) => (
                   <td key={k}>{row[k]}</td>
                 ))}

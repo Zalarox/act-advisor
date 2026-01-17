@@ -1,4 +1,4 @@
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   fetchAllUserRatings,
   fetchAverageRatings,
@@ -19,14 +19,17 @@ export const useUserRatingsPage = (
   });
 };
 
-export const useUserRatings = (userId: string | undefined) => {
+export const useUserRatings = (
+  userId: string | undefined,
+  timePeriod?: "last_week" | "last_month",
+) => {
   if (!userId) {
     throw new Error("User ID is required to fetch ratings");
   }
 
   return useQuery({
-    queryKey: ["ratings", userId],
-    queryFn: () => fetchAllUserRatings(userId),
+    queryKey: ["ratings", userId, timePeriod],
+    queryFn: () => fetchAllUserRatings(userId, timePeriod),
     staleTime: Infinity,
     refetchOnWindowFocus: false,
     refetchOnReconnect: false,
@@ -47,4 +50,17 @@ export const useAverageRatings = (userId: string | undefined) => {
     refetchOnReconnect: false,
     refetchOnMount: false,
   });
+};
+
+export const useRefreshQueries = () => {
+  const queryClient = useQueryClient();
+  return () => {
+    queryClient.invalidateQueries({
+      queryKey: ["ratings-page"],
+      exact: false,
+    });
+    queryClient.invalidateQueries({
+      queryKey: ["average-ratings"],
+    });
+  };
 };

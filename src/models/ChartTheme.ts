@@ -58,6 +58,21 @@ export const nivoDarkTheme = {
         fontSize: 12,
       },
     },
+    legend: {
+      text: {
+        fill: "#ffffff",
+      },
+    },
+  },
+  crosshair: {
+    line: {
+      stroke: "#ffffff",
+    },
+  },
+  legends: {
+    text: {
+      fill: "#ffffff",
+    },
   },
   dots: {
     text: {

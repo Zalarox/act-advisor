@@ -2,10 +2,12 @@ import { MoonStar } from "lucide-react";
 import { useTheme } from "../contexts/ThemeContext";
 import { useAuth } from "../contexts/AuthContext";
 import { deleteAllForUser } from "../utils/supabase";
+import { useRefreshQueries } from "../utils/queries";
 
 export const Header = () => {
   const themeContext = useTheme();
   const authContext = useAuth();
+  const refresh = useRefreshQueries();
 
   return (
     <div className="grid grid-cols-3 gap-4 p-4 bg-base-300">
@@ -16,7 +18,11 @@ export const Header = () => {
           {authContext.user && (
             <button
               className="btn btn-error"
-              onClick={() => deleteAllForUser(authContext.user?.id)}
+              onClick={() => {
+                deleteAllForUser(authContext.user?.id).then(() => {
+                  refresh();
+                });
+              }}
             >
               DELETE ALL DATA
             </button>

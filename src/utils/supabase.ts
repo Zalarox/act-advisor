@@ -1,6 +1,7 @@
 import { createClient } from "@supabase/supabase-js";
 import {
   ratingKeys,
+  ratingMetadata,
   type RatingAverages,
   type RatingRow,
 } from "../models/Ratings";
@@ -43,12 +44,25 @@ export const fetchUserRatingCount = async (userId: string): Promise<number> => {
 
 export const fetchAllUserRatings = async (
   userId: string,
+  timePeriod?: "last_week" | "last_month",
 ): Promise<RatingRow[]> => {
-  const { data, error } = await supabase
+  let query = supabase
     .from("rating")
     .select("*")
     .eq("user_id", userId)
     .order("created_at", { ascending: true });
+
+  if (timePeriod === "last_week") {
+    const sevenDaysAgo = new Date();
+    sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+    query = query.gte("created_at", sevenDaysAgo.toISOString());
+  } else if (timePeriod === "last_month") {
+    const thirtyDaysAgo = new Date();
+    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+    query = query.gte("created_at", thirtyDaysAgo.toISOString());
+  }
+
+  const { data, error } = await query;
 
   if (error) {
     throw error;
@@ -73,7 +87,8 @@ export const fetchAverageRatings = async (userId: string) => {
 
   return (
     Object.entries(data).map(([k, v]) => ({
-      label: k.replace(/^avg_/, ""),
+      label:
+        ratingMetadata.find((x) => x.id === k.replace(/^avg_/, ""))?.label || k,
       score: Number(v).toFixed(2),
     })) ?? []
   );

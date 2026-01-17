@@ -6,6 +6,7 @@ import {
 } from "../models/Ratings";
 import { RatingSlider } from "./RatingSlider";
 import { supabase } from "../utils/supabase";
+import { useRefreshQueries } from "../utils/queries";
 
 export const Modal = ({
   setModalOpen,
@@ -15,6 +16,8 @@ export const Modal = ({
   const [ratingsData, setRatingsData] = useState<RatingsData>(
     getInitialRatingsData(),
   );
+
+  const refresh = useRefreshQueries();
 
   const handleAdd = async () => {
     const { error } = await supabase.from("rating").insert([
@@ -26,6 +29,8 @@ export const Modal = ({
     if (error) {
       console.error("Error adding rating:", error);
     }
+
+    refresh();
   };
 
   return (
