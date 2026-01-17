@@ -1,90 +1,68 @@
 export const nivoLightTheme = {
-  textColor: "#1f2937",
-  grid: {
-    line: {
-      stroke: "#e5e7eb",
+  axis: {
+    ticks: {
+      text: {
+        fontSize: "1em",
+      },
+    },
+    legend: {
+      text: {
+        fontSize: "1em",
+      },
     },
   },
-  axis: {
-    domain: {
-      line: {
-        stroke: "#9ca3af",
-      },
-    },
-    ticks: {
-      line: {
-        stroke: "#9ca3af",
-      },
-      text: {
-        fill: "#1f2937",
-        fontSize: 12,
-      },
-    },
+  legends: {
+    text: {},
   },
   dots: {
     text: {
-      fill: "#1f2937",
-      fontSize: 11,
-      fontWeight: 500,
-    },
-  },
-  tooltip: {
-    container: {
-      background: "#ffffff",
-      color: "#111827",
+      fontSize: "0.75em",
     },
   },
 };
 
 export const nivoDarkTheme = {
-  textColor: "#d1d5db",
   grid: {
     line: {
-      stroke: "#374151",
+      stroke: "grey",
     },
   },
   axis: {
-    domain: {
-      line: {
-        stroke: "#6b7280",
-      },
-    },
     ticks: {
-      line: {
-        stroke: "#6b7280",
-      },
       text: {
-        fill: "#d1d5db",
-        fontSize: 12,
+        fill: "azure",
+        fontSize: "1em",
       },
     },
     legend: {
       text: {
-        fill: "#ffffff",
+        fill: "azure",
+        fontSize: "1em",
+        fontWeight: "bold",
       },
     },
   },
   crosshair: {
     line: {
-      stroke: "#ffffff",
+      stroke: "azure",
     },
   },
   legends: {
     text: {
-      fill: "#ffffff",
+      fill: "azure",
+      fontSize: "1em",
     },
   },
   dots: {
     text: {
-      fill: "#d1d5db",
-      fontSize: 11,
-      fontWeight: 500,
+      fill: "azure",
+      fontSize: "0.75em",
     },
   },
   tooltip: {
     container: {
-      background: "#111827",
-      color: "#f9fafb",
+      background: "black",
+      color: "azure",
     },
   },
 };

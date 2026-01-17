@@ -1,6 +1,6 @@
 import {
   ratingMetadata,
-  type ratingKeys,
+  type RatingKey,
   type RatingsData,
 } from "../models/Ratings";
 
@@ -9,7 +9,7 @@ export const RatingSlider = ({
   ratingsData,
   setRatingsData,
 }: {
-  ratingId: (typeof ratingKeys)[number];
+  ratingId: RatingKey;
   ratingsData: RatingsData;
   setRatingsData: React.Dispatch<React.SetStateAction<RatingsData>>;
 }) => {
@@ -42,7 +42,7 @@ export const RatingSlider = ({
           step={1}
           value={ratingsData[ratingId]}
           className={`w-full range range-sm ${getSliderClass(
-            ratingsData[ratingId]
+            ratingsData[ratingId],
           )}`}
           onChange={(e) =>
             setRatingsData((prev) => ({

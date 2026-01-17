@@ -21,7 +21,7 @@ export const useUserRatingsPage = (
 
 export const useUserRatings = (
   userId: string | undefined,
-  timePeriod?: "last_week" | "last_month",
+  timePeriod: "last_week" | "last_month" | "all",
 ) => {
   if (!userId) {
     throw new Error("User ID is required to fetch ratings");

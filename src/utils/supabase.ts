@@ -3,6 +3,7 @@ import {
   ratingKeys,
   ratingMetadata,
   type RatingAverages,
+  type RatingKey,
   type RatingRow,
 } from "../models/Ratings";
 
@@ -42,10 +43,23 @@ export const fetchUserRatingCount = async (userId: string): Promise<number> => {
   return count ?? 0;
 };
 
+export const toLineSeries = (
+  data: ({ date: string } & Record<RatingKey, number>)[],
+) =>
+  ratingKeys.map((key) => ({
+    id: key,
+    data: data.map((row) => ({
+      x: row.date,
+      y: row[key],
+    })),
+  }));
+
+const toDate = (iso: string) => iso.slice(0, 10);
+
 export const fetchAllUserRatings = async (
   userId: string,
-  timePeriod?: "last_week" | "last_month",
-): Promise<RatingRow[]> => {
+  timePeriod: "last_week" | "last_month" | "all",
+): Promise<Omit<RatingRow, "id" | "created_at" | "user_id">[]> => {
   let query = supabase
     .from("rating")
     .select("*")
@@ -68,7 +82,40 @@ export const fetchAllUserRatings = async (
     throw error;
   }
 
-  return data ?? [];
+  type Buckets = Record<string, Record<RatingKey, number[]>>; // date : { ratingKey: [scores...] }
+  const buckets = {} as Buckets;
+
+  data.forEach((row) => {
+    const day = toDate(row.created_at);
+
+    if (!buckets[day]) {
+      buckets[day] = {
+        present_moment: [],
+        values: [],
+        committed_action: [],
+        self_context: [],
+        defusion: [],
+        acceptance: [],
+      };
+    }
+
+    ratingKeys.forEach((key) => buckets[day][key].push(row[key]));
+  });
+
+  return (
+    Object.entries(buckets)
+      .map(([date, values]) => {
+        const avg = {} as Record<RatingKey, number>;
+
+        ratingKeys.forEach((key) => {
+          const nums = values[key];
+          avg[key] = nums.reduce((a, b) => a + b, 0) / nums.length;
+        });
+
+        return { date, ...avg };
+      })
+      .sort((a, b) => a.date.localeCompare(b.date)) ?? []
+  );
 };
 
 export const fetchAverageRatings = async (userId: string) => {

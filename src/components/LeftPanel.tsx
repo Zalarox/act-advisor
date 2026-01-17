@@ -43,9 +43,9 @@ export const LeftPanel = () => {
           data={averageRatings ?? []}
           keys={["score"]}
           indexBy="label"
-          margin={{ top: 70, right: 80, bottom: 40, left: 80 }}
+          margin={{ top: 70, right: 80, bottom: 45, left: 80 }}
           maxValue={10}
-          gridLabelOffset={36}
+          gridLabelOffset={20}
           dotSize={10}
           dotColor={{ theme: "background" }}
           borderWidth={0.5}

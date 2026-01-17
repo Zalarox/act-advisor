@@ -7,10 +7,12 @@ export const ratingKeys = [
   "acceptance",
 ] as const;
 
-export type RatingsData = Record<(typeof ratingKeys)[number], number>;
+export type RatingKey = (typeof ratingKeys)[number];
+
+export type RatingsData = Record<RatingKey, number>;
 
 type RatingMetadata = {
-  id: (typeof ratingKeys)[number];
+  id: RatingKey;
   label: string;
   minString: string;
   maxString: string;
@@ -75,5 +77,5 @@ export type RatingRow = {
 };
 
 export type RatingAverages = {
-  [K in (typeof ratingKeys)[number] as `avg_${K}`]: number;
+  [K in RatingKey as `avg_${K}`]: number;
 };

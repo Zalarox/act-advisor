@@ -1,38 +1,24 @@
 import { ResponsiveLine } from "@nivo/line";
 import { useTheme } from "../contexts/ThemeContext";
 import { nivoDarkTheme, nivoLightTheme } from "../models/ChartTheme";
-import { ratingKeys, ratingMetadata } from "../models/Ratings";
+import { ratingMetadata } from "../models/Ratings";
 import { useState } from "react";
+import { useUserRatings } from "../utils/queries";
+import { useAuth } from "../contexts/AuthContext";
 
-const generateRandomData = () => {
-  const sampleDates = [
-    "01 Jan",
-    "05 Jan",
-    "10 Jan",
-    "15 Jan",
-    "20 Jan",
-    "25 Jan",
-    "30 Jan",
-  ];
-  const randomScore = () => Math.floor(Math.random() * 10) + 1;
-
-  return ratingKeys.map((key) => ({
-    id: ratingMetadata.find((x) => x.id === key)?.label ?? "",
-    data: sampleDates.map((date) => ({
-      x: date,
-      y: randomScore(),
-    })),
-  }));
-};
+export type TimePeriod = "last_week" | "last_month" | "all";
 
 export const RightPanel = () => {
   const [filter, setFilter] = useState<string[]>(
     ratingMetadata.map((r) => r.id),
   );
 
-  const [data] = useState(() => generateRandomData());
-  const [timePeriod, setTimePeriod] = useState("last_week");
+  const [timePeriod, setTimePeriod] = useState<TimePeriod>("last_week");
+  const auth = useAuth();
   const theme = useTheme();
+  const { data } = useUserRatings(auth.user?.id, timePeriod);
+
+  console.log(data);
 
   return (
     <div id="right-panel" className="h-100">
@@ -70,7 +56,7 @@ export const RightPanel = () => {
       <select
         className="select"
         value={timePeriod}
-        onChange={(e) => setTimePeriod(e.target.value)}
+        onChange={(e) => setTimePeriod(e.target.value as TimePeriod)}
       >
         <option disabled={true}>Time period</option>
         <option value="last_week">Last week</option>
@@ -80,8 +66,8 @@ export const RightPanel = () => {
 
       <div className="h-full min-h-200">
         <ResponsiveLine
-          data={data}
-          margin={{ top: 40, right: 50, bottom: 300, left: 50 }}
+          data={[]}
+          margin={{ top: 40, right: 50, bottom: 300, left: 55 }}
           xScale={{ type: "point" }}
           yScale={{
             type: "linear",
@@ -92,24 +78,24 @@ export const RightPanel = () => {
           axisBottom={{
             tickRotation: -45,
             legend: "Date",
-            legendOffset: 50,
+            legendOffset: 65,
             legendPosition: "middle",
           }}
           axisLeft={{
             legend: "Score",
-            legendOffset: -35,
+            legendOffset: -45,
             legendPosition: "middle",
           }}
           pointSize={8}
           pointBorderWidth={2}
           legends={[
             {
-              anchor: "bottom-left",
-              direction: "row",
-              itemWidth: 150,
+              anchor: "bottom",
+              direction: "column",
+              itemWidth: 10,
               itemHeight: 30,
-              translateY: 100,
-              translateX: 25,
+              translateY: 275,
+              translateX: -50,
               symbolShape: "circle",
               symbolSize: 10,
             },
