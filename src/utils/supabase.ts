@@ -4,8 +4,8 @@ import {
   ratingMetadata,
   type RatingAverages,
   type RatingKey,
-  type RatingRow,
 } from "../models/Ratings";
+import type { LineSeries } from "@nivo/line";
 
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
 const supabaseKey = import.meta.env.VITE_SUPABASE_PUBLISHABLE_DEFAULT_KEY;
@@ -43,23 +43,22 @@ export const fetchUserRatingCount = async (userId: string): Promise<number> => {
   return count ?? 0;
 };
 
-export const toLineSeries = (
-  data: ({ date: string } & Record<RatingKey, number>)[],
-) =>
+type InputRow = { date: string } & Record<RatingKey, number>;
+export const toLineSeries: (data: InputRow[]) => LineSeries[] = (data) =>
   ratingKeys.map((key) => ({
-    id: key,
+    id: ratingMetadata.find((x) => x.id === key)?.label,
     data: data.map((row) => ({
       x: row.date,
       y: row[key],
     })),
-  }));
+  })) as LineSeries[];
 
 const toDate = (iso: string) => iso.slice(0, 10);
 
 export const fetchAllUserRatings = async (
   userId: string,
   timePeriod: "last_week" | "last_month" | "all",
-): Promise<Omit<RatingRow, "id" | "created_at" | "user_id">[]> => {
+): Promise<InputRow[]> => {
   let query = supabase
     .from("rating")
     .select("*")
@@ -109,7 +108,9 @@ export const fetchAllUserRatings = async (
 
         ratingKeys.forEach((key) => {
           const nums = values[key];
-          avg[key] = nums.reduce((a, b) => a + b, 0) / nums.length;
+          avg[key] = Number(
+            (nums.reduce((a, b) => a + b, 0) / nums.length).toFixed(2),
+          );
         });
 
         return { date, ...avg };

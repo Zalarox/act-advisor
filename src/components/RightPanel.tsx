@@ -5,6 +5,7 @@ import { ratingMetadata } from "../models/Ratings";
 import { useState } from "react";
 import { useUserRatings } from "../utils/queries";
 import { useAuth } from "../contexts/AuthContext";
+import { toLineSeries } from "../utils/supabase";
 
 export type TimePeriod = "last_week" | "last_month" | "all";
 
@@ -13,12 +14,18 @@ export const RightPanel = () => {
     ratingMetadata.map((r) => r.id),
   );
 
+  const getPrettyDate = (value: string) => {
+    const date = new Date(value);
+    return date.toLocaleDateString(undefined, {
+      month: "short",
+      day: "numeric",
+    });
+  };
+
   const [timePeriod, setTimePeriod] = useState<TimePeriod>("last_week");
   const auth = useAuth();
   const theme = useTheme();
   const { data } = useUserRatings(auth.user?.id, timePeriod);
-
-  console.log(data);
 
   return (
     <div id="right-panel" className="h-100">
@@ -66,7 +73,7 @@ export const RightPanel = () => {
 
       <div className="h-full min-h-200">
         <ResponsiveLine
-          data={[]}
+          data={data ? toLineSeries(data) : []}
           margin={{ top: 40, right: 50, bottom: 300, left: 55 }}
           xScale={{ type: "point" }}
           yScale={{
@@ -80,6 +87,7 @@ export const RightPanel = () => {
             legend: "Date",
             legendOffset: 65,
             legendPosition: "middle",
+            format: getPrettyDate,
           }}
           axisLeft={{
             legend: "Score",
@@ -100,6 +108,16 @@ export const RightPanel = () => {
               symbolSize: 10,
             },
           ]}
+          tooltip={({ point }) => (
+            <div className="bg-base-200 p-4 w-50">
+              <div className="font-extrabold">
+                Date: {getPrettyDate(point.data.x as string)}
+              </div>
+              <div className="mt-4">
+                {point.seriesId} score average: {point.data.y?.toString()}
+              </div>
+            </div>
+          )}
           useMesh={true}
           theme={theme.isDarkMode ? nivoDarkTheme : nivoLightTheme}
           colors={

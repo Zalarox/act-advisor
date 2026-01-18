@@ -30,7 +30,7 @@ export const Dashboard = () => {
           </button>
         </div>
       </div>
-      <div className="grid grid-cols-2 h-full mt-10">
+      <div className="grid grid-cols-2 h-full mt-10 mx-50">
         <LeftPanel />
         <RightPanel />
       </div>
