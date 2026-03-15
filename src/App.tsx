@@ -15,7 +15,7 @@ const App = () => {
     <QueryClientProvider client={queryClient}>
       <ThemeProvider>
         <AuthProvider>
-          <div className="flex flex-col h-dvh">
+          <div className="flex flex-col h-dvh overflow-hidden">
             <Header />
             <RouterProvider router={router} />
             <Footer />
